@@ -6,21 +6,19 @@ LINK_API = "https://api.opendota.com/api/matches/"
 
 app = FastAPI()
 
-@app.post("/match/")
-def root(match: str, mvp: str):
+@app.get("/results")
+def get_results():
+    with open("statistics.json", "r") as r:
+        return json.loads(r.read())
+    
+
+@app.post("/lobby_match/")
+def root(id_match: str, mvp: str = None):
     if os.path.exists("statistics.json"):
         r = open("statistics.json")
         statistics = json.loads(r.read())
     else:
         statistics = dict()
-    
-    if len(sys.argv) < 1:
-        print("Error")
-        return 0
-    id_match = sys.argv[1]
-
-    if len(sys.argv) > 1:
-        mvp = sys.argv[2]
 
     # p = open("test.json", "r")
     # j = json.loads(p.read())
@@ -34,6 +32,8 @@ def root(match: str, mvp: str):
 
     with open("statistics.json", "w") as w:
         w.write(json.dumps(statistics, indent=4))
+
+    return "funfou"
 
 
 def init_players(j, statistics):
@@ -88,7 +88,7 @@ def get_statistics(j, mvp, statistics):
         if statistics[id]["net_worth_average"] == 0:
             statistics[id]["net_worth_average"] = player["net_worth"]
         else:
-            statistics[id]["net_worth_average"] = int((statistics[id]["net_worth_average"] + player["net_worth"]) + 2)
+            statistics[id]["net_worth_average"] = int((statistics[id]["net_worth_average"] + player["net_worth"]) / 2)
         
         if statistics[id]["tower_damage_average"] == 0:
             statistics[id]["tower_damage_average"] = player["tower_damage"]
